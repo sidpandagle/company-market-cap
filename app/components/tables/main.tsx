@@ -6,7 +6,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Input,
   Button,
   DropdownTrigger,
   Dropdown,
@@ -21,8 +20,7 @@ import {
 } from "@nextui-org/react";
 import { VerticalDotsIcon } from "./VerticalDotsIcon";
 import { SearchIcon } from "./SearchIcon";
-import { columns, users, statusOptions } from "./data";
-import { Select, SelectItem, Avatar } from "@nextui-org/react";
+import { columns, users } from "./data";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
@@ -31,18 +29,6 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
   vacation: "warning",
 };
 
-// const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
-
-const INITIAL_VISIBLE_COLUMNS = [
-  "id",
-  "name",
-  "age",
-  "role",
-  "team",
-  "email",
-  "status",
-  "actions"
-];
 
 type User = typeof users[0];
 
@@ -50,8 +36,6 @@ export default function App() {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   // const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
-  const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
-  const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "age",
@@ -62,11 +46,7 @@ export default function App() {
 
   const hasSearchFilter = Boolean(filterValue);
 
-  const headerColumns = React.useMemo(() => {
-    if (visibleColumns === "all") return columns;
-
-    return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
-  }, [visibleColumns]);
+  const headerColumns = columns;
 
   const filteredItems = React.useMemo(() => {
     let filteredUsers = [...users];
@@ -76,15 +56,10 @@ export default function App() {
         user.name.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status),
-      );
-    }
 
     return filteredUsers;
     // [users, filterValue, statusFilter]
-  }, [hasSearchFilter, statusFilter, filterValue]);
+  }, [hasSearchFilter, filterValue]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -242,7 +217,7 @@ export default function App() {
         </div>
       </div>
     );
-  }, [filterValue, onSearchChange, statusFilter, visibleColumns, onRowsPerPageChange, onClear]);
+  }, [filterValue, onSearchChange, onRowsPerPageChange, onClear]);
 
   const bottomContent = React.useMemo(() => {
     return (
