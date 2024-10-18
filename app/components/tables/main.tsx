@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import {
   Table,
@@ -17,11 +18,13 @@ import {
   Selection,
   ChipProps,
   SortDescriptor
-} from "@nextui-org/react";
+, Autocomplete, AutocompleteItem, Input, 
+AutocompleteSection} from "@nextui-org/react";
 import { VerticalDotsIcon } from "./VerticalDotsIcon";
 import { SearchIcon } from "./SearchIcon";
-import { columns, users } from "./data";
-import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
+import { columns, market_caps, countries, domains, industries } from "./data";
+// import { Input } from "postcss";
+
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   active: "success",
@@ -30,7 +33,7 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 };
 
 
-type User = typeof users[0];
+type MarketCap = typeof market_caps[0];
 
 export default function App() {
   const [filterValue, setFilterValue] = React.useState("");
@@ -49,16 +52,16 @@ export default function App() {
   const headerColumns = columns;
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
+    let filteredMarketCap = [...market_caps];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase()),
+      filteredMarketCap = filteredMarketCap.filter((market_cap) =>
+        market_cap.name.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
 
-    return filteredUsers;
-    // [users, filterValue, statusFilter]
+    return filteredMarketCap;
+    // [market_caps, filterValue, statusFilter]
   }, [hasSearchFilter, filterValue]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
@@ -71,43 +74,43 @@ export default function App() {
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: User, b: User) => {
-      const first = a[sortDescriptor.column as keyof User] as number;
-      const second = b[sortDescriptor.column as keyof User] as number;
+    return [...items].sort((a: MarketCap, b: MarketCap) => {
+      const first = a[sortDescriptor.column as keyof MarketCap] as number;
+      const second = b[sortDescriptor.column as keyof MarketCap] as number;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
-    const cellValue = user[columnKey as keyof User];
+  const renderCell = React.useCallback((market_cap: MarketCap, columnKey: React.Key) => {
+    const cellValue = market_cap[columnKey as keyof MarketCap];
 
     switch (columnKey) {
       case "name":
         return (
           <User
-            avatarProps={{ radius: "lg", src: user.avatar }}
-            description={user.email}
+            // avatarProps={{ radius: "lg", src: market_cap.avatar }}
+            description={market_cap.name}
             name={cellValue}
           >
-            {user.email}
+            {market_cap.name}
           </User>
         );
       case "role":
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small capitalize">{cellValue}</p>
-            <p className="text-bold text-tiny capitalize text-default-400">{user.team}</p>
+            <p className="text-bold text-tiny capitalize text-default-400">{market_cap.price}</p>
           </div>
         );
       case "status":
         return (
-          <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">
+          <Chip className="capitalize" color={statusColorMap[market_cap.today]} size="sm" variant="flat">
             {cellValue}
           </Chip>
         );
-      case "actions":
+      // case "actions":
         return (
           <div className="relative flex justify-end items-center gap-2">
             <Dropdown>
@@ -161,6 +164,17 @@ export default function App() {
   }, [])
 
   const topContent = React.useMemo(() => {
+    type Country = {
+      label: string;
+      value: string;
+    };
+    
+    const regions = countries.reduce((acc: Record<string, Country[]>, country) => {
+      if (!acc[country.region]) acc[country.region] = [];
+      acc[country.region].push(country);
+      return acc;
+    }, {});
+
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
@@ -173,48 +187,68 @@ export default function App() {
             placeholder="Company Name, Ticker"
             onValueChange={onSearchChange}
             /> */}
-          <Autocomplete
+          <Input
             startContent={<SearchIcon />}
-            defaultItems={industires}
+            // defaultItems={domains}
             placeholder="Company Name, Ticker"
             className="w-full sm:max-w-[44%]"
           >
-            {(data) => <AutocompleteItem key={data.value}>{data.label}</AutocompleteItem>}
-          </Autocomplete>
+            {/* {(data) => <AutocompleteItem key={data.value}>{data.label}</AutocompleteItem>} */}
+          </Input>
+
           <Autocomplete
-            defaultItems={industires}
-            placeholder="Rank by industires"
+            defaultItems={domains}
+            placeholder="Rank by Domains"
             className="max-w-xs"
           >
             {(data) => <AutocompleteItem key={data.value}>{data.label}</AutocompleteItem>}
           </Autocomplete>
+
           <Autocomplete
-            defaultItems={countries}
-            placeholder="Rank by Countries"
+            defaultItems={industries}
+            placeholder="Rank by Industries"
             className="max-w-xs"
           >
             {(data) => <AutocompleteItem key={data.value}>{data.label}</AutocompleteItem>}
+          </Autocomplete>
+              
+          <Autocomplete
+            // label="Rank by Countries"
+            placeholder="Search countries"
+            className="max-w-xs"
+            // size='md'
+          >
+            {/* Map through each region */}
+            {Object.keys(regions).map((region) => (
+              <AutocompleteSection key={region} title={region}>
+                {regions[region].map((country) => (
+                  <AutocompleteItem key={country.value}>
+                    {country.label}
+                  </AutocompleteItem>
+                ))}
+              </AutocompleteSection>
+            ))}
           </Autocomplete>
         </div>
         <div className="text-center p-6">
           <div className="text-3xl pb-2 font-semibold">
-            Top publicly traded courier companies by earnings
+          Largest Companies by Marketcap
           </div>
           <div className="flex gap-2 justify-center">
             <div>
-              companies: <span className="font-semibold">20</span>
+              Companies: <span className="font-semibold">20</span>
             </div>
             <div>
-              total earnings (TTM): <span className="font-semibold">$30.16 B</span>
+            total market cap: <span className="font-semibold">$113.663 T</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        {/* <div className="flex items-center gap-2 flex-wrap">
           <div>Rank by: </div>
           {categories.map((data) => {
             return <Chip className="p-4 border-1 cursor-pointer" variant={data.selected ? "solid" : "bordered"} key={data.label}>{data.label}</Chip>
           })}
-        </div>
+        </div> */}
       </div>
     );
   }, [filterValue, onSearchChange, onRowsPerPageChange, onClear]);
@@ -277,7 +311,7 @@ export default function App() {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody emptyContent={"No users found"} items={sortedItems}>
+      <TableBody emptyContent={"No market_caps found"} items={sortedItems}>
         {(item) => (
           <TableRow key={item.id}>
             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
@@ -288,31 +322,4 @@ export default function App() {
   );
 }
 
-
-export const countries = [
-  { label: "USA", value: "usa", description: "usa" },
-  { label: "India", value: "india", description: "india" },
-];
-export const industires = [
-  { label: "IT", value: "it", description: "IT" },
-  { label: "Agriculture", value: "agriculture", description: "Agriculture" },
-];
-export const categories = [
-  { label: "Market Cap", value: "Market Cap", description: "Market Cap", selected: true },
-  { label: "Earnings", value: "Earnings", description: "Earnings" },
-  { label: "Revenue", value: "Revenue", description: "Revenue" },
-  { label: "Employees", value: "Employees", description: "Employees" },
-  { label: "P/E ratio", value: "P/E ratio", description: "P/E ratio" },
-  { label: "Dividend %", value: "Dividend %", description: "Dividend %" },
-  { label: "Market Cap gain", value: "Market Cap gain", description: "Market Cap gain" },
-  { label: "Market Cap loss", value: "Market Cap loss", description: "Market Cap loss" },
-  { label: "Operating Margin", value: "Operating Margin", description: "Operating Margin" },
-  { label: "Cost to borrow", value: "Cost to borrow", description: "Cost to borrow" },
-  { label: "Total assets", value: "Total assets", description: "Total assets" },
-  { label: "Net assets", value: "Net assets", description: "Net assets" },
-  { label: "Total liabilities", value: "Total liabilities", description: "Total liabilities" },
-  { label: "Total debt", value: "Total debt", description: "Total debt" },
-  { label: "Cash on hand", value: "Cash on hand", description: "Cash on hand" },
-  { label: "P/B ratio", value: "P/B ratio", description: "P/B ratio" },
-];
 
