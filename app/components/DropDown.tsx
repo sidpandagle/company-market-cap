@@ -3,16 +3,36 @@
 import React from "react";
 import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@nextui-org/react";
 import type { Selection } from "@nextui-org/react";
+import favicon from "../../public/favicon.ico";
 
 export default function App() {
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set(["$ USD"]));
   const countryList = [
     {
-        name: '$ USD'
-    },
-    {
-        name: '₹ INR'
-    },
+        name: '$ USD',
+        flag: favicon
+    },{
+        name: '₹ INR',
+        flag: favicon
+    },{
+      name: '£ GBP',
+      flag: favicon
+    },{
+      name: '$ CAD',
+      flag: favicon
+    },{
+      name: '$ AUD',
+      flag: favicon
+    },{
+      name: '$ NZD',
+      flag: favicon
+    },{
+      name: '$ HKD',
+      flag: favicon
+    },{
+      name: '$ SGD',
+      flag: favicon
+},
   ]
 
   const selectedValue = React.useMemo(
@@ -35,6 +55,7 @@ export default function App() {
         aria-label="Single selection example"
         variant="flat"
         disallowEmptySelection
+        className="flex"  
         selectionMode="single"
         selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}
@@ -42,11 +63,6 @@ export default function App() {
         {countryList.map((country) => (
             <DropdownItem key={country.name}>{country.name}</DropdownItem>
         ))}
-        {/* <DropdownItem key="usa">$ INR</DropdownItem> */}
-        {/* <DropdownItem key="number">Number</DropdownItem>
-        <DropdownItem key="date">Date</DropdownItem>
-        <DropdownItem key="single_date">Single Date</DropdownItem>
-        <DropdownItem key="iteration">Iteration</DropdownItem> */}
       </DropdownMenu>
     </Dropdown>
   );

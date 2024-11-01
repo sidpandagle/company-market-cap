@@ -8,21 +8,17 @@ import {
   TableRow,
   TableCell,
   Button,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
   Chip,
   User,
   Pagination,
   Selection,
   ChipProps,
   SortDescriptor
-, Autocomplete, AutocompleteItem, Input, 
-AutocompleteSection} from "@nextui-org/react";
-import { VerticalDotsIcon } from "./VerticalDotsIcon";
+  , Autocomplete, AutocompleteItem,
+  AutocompleteSection
+} from "@nextui-org/react";
 import { SearchIcon } from "./SearchIcon";
-import { columns, market_caps, countries, domains, industries } from "./data";
+import { columns, market_caps, countries, domains, industries, companies } from "./data";
 // import { Input } from "postcss";
 
 
@@ -53,6 +49,7 @@ export default function App() {
 
   const filteredItems = React.useMemo(() => {
     let filteredMarketCap = [...market_caps];
+    console.log(filteredMarketCap)
 
     if (hasSearchFilter) {
       filteredMarketCap = filteredMarketCap.filter((market_cap) =>
@@ -110,22 +107,13 @@ export default function App() {
             {cellValue}
           </Chip>
         );
-      // case "actions":
+      case "country":
         return (
-          <div className="relative flex justify-end items-center gap-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light">
-                  <VerticalDotsIcon className="text-default-300" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem>View</DropdownItem>
-                <DropdownItem>Edit</DropdownItem>
-                <DropdownItem>Delete</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+          <div className="flex items-center gap-2">
+            <img src={"https://flagcdn.com/au.svg"} className="h-4 w-4" alt="" />
+            {cellValue}
           </div>
+
         );
       default:
         return cellValue;
@@ -168,7 +156,7 @@ export default function App() {
       label: string;
       value: string;
     };
-    
+
     const regions = countries.reduce((acc: Record<string, Country[]>, country) => {
       if (!acc[country.region]) acc[country.region] = [];
       acc[country.region].push(country);
@@ -187,14 +175,22 @@ export default function App() {
             placeholder="Company Name, Ticker"
             onValueChange={onSearchChange}
             /> */}
-          <Input
+          {/* <Input
             startContent={<SearchIcon />}
-            // defaultItems={domains}
             placeholder="Company Name, Ticker"
             className="w-full sm:max-w-[44%]"
           >
-            {/* {(data) => <AutocompleteItem key={data.value}>{data.label}</AutocompleteItem>} */}
-          </Input>
+            {(data) => <AutocompleteItem key={data.value}>{data.label}</AutocompleteItem>}
+          </Input> */}
+
+          <Autocomplete
+            startContent={<SearchIcon />}
+            placeholder="Company Name, Ticker"
+            className="w-full sm:max-w-[44%]"
+            defaultItems={companies}
+          >
+            {(data) => <AutocompleteItem key={data.value}>{data.label}</AutocompleteItem>}
+          </Autocomplete>
 
           <Autocomplete
             defaultItems={domains}
@@ -211,12 +207,12 @@ export default function App() {
           >
             {(data) => <AutocompleteItem key={data.value}>{data.label}</AutocompleteItem>}
           </Autocomplete>
-              
+
           <Autocomplete
             // label="Rank by Countries"
             placeholder="Search countries"
             className="max-w-xs"
-            // size='md'
+          // size='md'
           >
             {/* Map through each region */}
             {Object.keys(regions).map((region) => (
@@ -232,14 +228,14 @@ export default function App() {
         </div>
         <div className="text-center p-6">
           <div className="text-3xl pb-2 font-semibold">
-          Largest Companies by Marketcap
+            Largest Companies by Marketcap
           </div>
           <div className="flex gap-2 justify-center">
             <div>
               Companies: <span className="font-semibold">20</span>
             </div>
             <div>
-            total market cap: <span className="font-semibold">$113.663 T</span>
+              total market cap: <span className="font-semibold">$113.663 T</span>
             </div>
           </div>
         </div>
